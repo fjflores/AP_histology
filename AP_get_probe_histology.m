@@ -19,6 +19,7 @@ slice_im_dir = dir([slice_im_path filesep '*.tif']);
 slice_im_fn = natsortfiles(cellfun(@(path,fn) [path filesep fn], ...
     {slice_im_dir.folder},{slice_im_dir.name},'uni',false));
 gui_data.slice_im = cell(length(slice_im_fn),1);
+
 for curr_slice = 1:length(slice_im_fn)
     gui_data.slice_im{curr_slice} = imread(slice_im_fn{curr_slice});
 end
@@ -45,6 +46,7 @@ for curr_slice = 1:length(gui_data.slice_im)
     tform_size = imref2d([size(curr_slice_im,1),size(curr_slice_im,2)]);
     gui_data.histology_aligned_av_slices{curr_slice} = ...
         imwarp(curr_av_slice,tform,'nearest','OutputView',tform_size);
+    
 end
 
 % Create figure, set button functions
@@ -223,6 +225,7 @@ switch eventdata.Key
                 
                 probe_ccf(curr_probe).trajectory_coords = double(trajectory_coords(use_trajectory_areas,:));
                 probe_ccf(curr_probe).trajectory_areas = double(trajectory_areas);
+                probe_ccf(curr_probe).probe_color = gui_data.probe_color( curr_probe );
                 
             end
             
