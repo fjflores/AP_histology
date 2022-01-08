@@ -1,15 +1,18 @@
 % Example pipeline for processing histology
 
 %% 1) Load CCF and set paths for slide and slice images
+clear all
+close all
+clc
 
 % Load CCF atlas
-allen_atlas_path = 'path to CCF atlas goes here';
+allen_atlas_path = 'D:\Code\Matlab\Neuropixels-course\allenCCF';
 tv = readNPY([allen_atlas_path filesep 'template_volume_10um.npy']);
 av = readNPY([allen_atlas_path filesep 'annotation_volume_10um_by_index.npy']);
 st = loadStructureTree([allen_atlas_path filesep 'structure_tree_safe_2017.csv']);
 
 % Set paths for histology images and directory to save slice/alignment
-im_path = 'path to folder with images goes here';
+im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
 slice_path = [im_path filesep 'slices'];
 
 %% 2) Preprocess slide images to produce slice images
@@ -22,14 +25,14 @@ slice_path = [im_path filesep 'slices'];
 
 % Set resize factor
 % resize_factor = []; % (slides ome.tiff: auto-resize ~CCF size 10um/px)
-resize_factor = 1; % (slides tiff: resize factor)
+resize_factor = 0.5; % (slides tiff: resize factor)
 
 % Set slide or slice images
 % slice_images = false; % (images are slides - extract individual slices)
 slice_images = true; % (images are already individual slices)
 
 % Preprocess images
-AP_process_histology(im_path,resize_factor,slice_images);
+AP_process_histology(im_path,resize_factor,slice_path);
 
 % (optional) Rotate, center, pad, flip slice images
 AP_rotate_histology(slice_path);
@@ -42,6 +45,7 @@ AP_grab_histology_ccf(tv,av,st,slice_path);
 % Align CCF slices and histology slices
 % (first: automatically, by outline)
 AP_auto_align_histology_ccf(slice_path);
+
 % (second: curate manually)
 AP_manual_align_histology_ccf(tv,av,st,slice_path);
 
@@ -52,7 +56,7 @@ AP_manual_align_histology_ccf(tv,av,st,slice_path);
 AP_view_aligned_histology(st,slice_path);
 
 % Display histology within 3D CCF
-AP_view_aligned_histology_volume(tv,av,st,slice_path,1);
+AP_view_aligned_histology_volume(tv,av,st,slice_path,3);
 
 % Get probe trajectory from histology, convert to CCF coordinates
 AP_get_probe_histology(tv,av,st,slice_path);
