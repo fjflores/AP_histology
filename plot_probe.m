@@ -1,15 +1,15 @@
-function plot_probe( tv, probe_ccf, areas )
+function plot_probe( tv, probe_ccf, coords, areas )
 % PLOT_PROBE plots histologically-defined probe points within Allen CCF.
-% 
+%
 % Usage:
 % plot_probe( tv, probe_ccf, areas )
-% 
+%
 % Input:
 % tv: annotated volume dta from Allen CCF.
 % probe_ccf: probe location data from AP_get_probe_histology.
 % areas: Optional. If true, plots the brain areas spanned by the probe.
 %        Default false.
-% 
+%
 % Ouptput:
 % Figure with brain volume, probe start and end points, and regression line
 % for the points.
@@ -17,28 +17,42 @@ function plot_probe( tv, probe_ccf, areas )
 
 % Check user input.
 if nargin < 3
+    coords = 'pax'
+    
+end
+
+if nargin < 4
     areas = false;
     
 end
 
 
 % Plot probe trajectories
-figure( 'Name','Probe trajectories' );
-axes_atlas = axes;
-[ ~, brain_outline ] = plotBrainGrid( [], axes_atlas );
-
-
-set( axes_atlas, 'ZDir', 'reverse' );
-hold( axes_atlas, 'on' );
-axis vis3d equal off manual
-view( [ -30, 25 ] );
-caxis( [ 0 300 ] );
-[ ap_max, dv_max, ml_max ] = size( tv );
-xlim( [ -10, ap_max + 10 ] )
-ylim( [ -10, ml_max + 10 ] )
-zlim( [ -10, dv_max + 10 ] )
-h = rotate3d( gca );
-h.Enable = 'on';
+switch coords
+    case 'ccf'
+        figure( 'Name','Probe trajectories' );
+        axes_atlas = axes;
+        [ ~, brain_outline ] = plotBrainGrid( [], axes_atlas );
+        set( axes_atlas, 'ZDir', 'reverse' );
+        hold( axes_atlas, 'on' );
+        axis vis3d equal off manual
+        view( [ -30, 25 ] );
+        caxis( [ 0 300 ] );
+        [ ap_max, dv_max, ml_max ] = size( tv );
+        xlim( [ -10, ap_max + 10 ] )
+        ylim( [ -10, ml_max + 10 ] )
+        zlim( [ -10, dv_max + 10 ] )
+        h = rotate3d( gca );
+        h.Enable = 'on';
+        
+    case 'pax'
+        plotBrainSurf( tv, true )
+        set( axes_atlas, 'ZDir', 'reverse' );
+        hold( axes_atlas, 'on' );
+        axis vis3d equal off manual
+        view( [ -30, 25 ] );
+        
+end
 
 n_probes = length( probe_ccf );
 for curr_probe = 1 : n_probes
