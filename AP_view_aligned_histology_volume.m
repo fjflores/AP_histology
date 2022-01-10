@@ -1,4 +1,4 @@
-function AP_view_aligned_histology_volume(tv,av,st,slice_im_path,channel)
+function AP_view_aligned_histology_volume(tv,av,st,slice_im_path,channel,thr)
 % AP_view_aligned_histology_volume(tv,av,st,slice_im_path,channel)
 %
 % Plot histology warped onto CCF volume
@@ -83,15 +83,20 @@ h.Enable = 'on';
 
 % Draw all aligned slices
 histology_surf = gobjects(length(gui_data.slice_im),1);
+
+if nargin < 6
+    thr = 100;
+    
+end
+
 for curr_slice = 1:length(gui_data.slice_im)
     
     % Get thresholded image
     curr_slice_im = gui_data.atlas_aligned_histology{curr_slice}(:,:,channel);
     slice_alpha = curr_slice_im;
-    value_thresh = 100;
     
     % Draw if thresholded pixels (ignore if not)
-    if any(curr_slice_im(:) > value_thresh)
+    if any(curr_slice_im(:) > thr)
         % Draw a surface at CCF coordinates
         histology_surf(curr_slice) = surface( ...
             gui_data.histology_ccf(curr_slice).plane_ap, ...
@@ -105,7 +110,7 @@ for curr_slice = 1:length(gui_data.slice_im)
         
         % Set the alpha data
         max_alpha = 1;
-        slice_alpha = mat2gray(curr_slice_im,[value_thresh,double(max(curr_slice_im(:)))])*max_alpha;
+        slice_alpha = mat2gray(curr_slice_im,[thr,double(max(curr_slice_im(:)))])*max_alpha;
         histology_surf(curr_slice).FaceAlpha = 'texturemap';
         histology_surf(curr_slice).AlphaDataMapping = 'none';
         histology_surf(curr_slice).AlphaData = slice_alpha;
@@ -116,9 +121,9 @@ end
 
 
 % % Attempt plotting as 3D surface
-% 
+
 % keyboard
-% 
+
 % thresh_volume = false(size(tv));
 % 
 % for curr_slice = 1:length(gui_data.slice_im)
