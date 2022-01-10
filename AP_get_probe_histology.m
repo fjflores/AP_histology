@@ -135,7 +135,8 @@ switch eventdata.Key
             probe_ccf = struct( ...
                 'points',cell(gui_data.n_probes,1), ...
                 'trajectory_coords',cell(gui_data.n_probes,1), ....
-                'trajectory_areas',cell(gui_data.n_probes,1));
+                'trajectory_areas',cell(gui_data.n_probes,1),...
+                'probe_color',cell(gui_data.n_probes,1));
             
             % Convert probe points to CCF points by alignment and save                     
             for curr_probe = 1:gui_data.n_probes             
@@ -225,7 +226,7 @@ switch eventdata.Key
                 
                 probe_ccf(curr_probe).trajectory_coords = double(trajectory_coords(use_trajectory_areas,:));
                 probe_ccf(curr_probe).trajectory_areas = double(trajectory_areas);
-                probe_ccf(curr_probe).probe_color = gui_data.probe_color( curr_probe );
+                probe_ccf(curr_probe).probe_color = gui_data.probe_color( curr_probe, : );
                 
             end
             
