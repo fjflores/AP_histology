@@ -1,9 +1,33 @@
-function plot_probe( tv, probe_ccf )
+function plot_probe( tv, probe_ccf, areas )
+% PLOT_PROBE plots histologically-defined probe points within Allen CCF.
+% 
+% Usage:
+% plot_probe( tv, probe_ccf, areas )
+% 
+% Input:
+% tv: annotated volume dta from Allen CCF.
+% probe_ccf: probe location data from AP_get_probe_histology.
+% areas: Optional. If true, plots the brain areas spanned by the probe.
+%        Default false.
+% 
+% Ouptput:
+% Figure with brain volume, probe start and end points, and regression line
+% for the points.
+
+
+% Check user input.
+if nargin < 3
+    areas = false;
+    
+end
+
 
 % Plot probe trajectories
 figure( 'Name','Probe trajectories' );
 axes_atlas = axes;
 [ ~, brain_outline ] = plotBrainGrid( [], axes_atlas );
+
+
 set( axes_atlas, 'ZDir', 'reverse' );
 hold( axes_atlas, 'on' );
 axis vis3d equal off manual
@@ -15,6 +39,7 @@ ylim( [ -10, ml_max + 10 ] )
 zlim( [ -10, dv_max + 10 ] )
 h = rotate3d( gca );
 h.Enable = 'on';
+
 n_probes = length( probe_ccf );
 for curr_probe = 1 : n_probes
     
@@ -51,24 +76,27 @@ end
 
 
 % Plot probe areas
-% figure( 'Name', 'Trajectory areas' );
-% % (load the colormap - located in the repository, find by associated fcn)
-% allenCCF_path = fileparts( which( 'allenCCFbregma' ) );
-% cmap_filename = [ allenCCF_path filesep 'allen_ccf_colormap_2017.mat' ];
-% load( cmap_filename );
-% 
-% for curr_probe = 1 : n_probes
-%     curr_axes = subplot( 1, n_probes, curr_probe );
-%     trajectory_area_boundaries = ...
-%         [1;find(diff(probe_ccf(curr_probe).trajectory_areas) ~= 0);length(probe_ccf(curr_probe).trajectory_areas)];    
-%     trajectory_area_centers = trajectory_area_boundaries(1:end-1) + diff(trajectory_area_boundaries)/2;
-%     trajectory_area_labels = gui_data.st.safe_name(probe_ccf(curr_probe).trajectory_areas(round(trajectory_area_centers)));
-%       
-%     image(probe_ccf(curr_probe).trajectory_areas);
-%     colormap(curr_axes,cmap);
-%     caxis([1,size(cmap,1)])
-%     set(curr_axes,'YTick',trajectory_area_centers,'YTickLabels',trajectory_area_labels);
-%     set(curr_axes,'XTick',[]);
-%     title(['Probe ' num2str(curr_probe)]);
-%     
-% end
+if areas
+    figure( 'Name', 'Trajectory areas' );
+    % (load the colormap - located in the repository, find by associated fcn)
+    allenCCF_path = fileparts( which( 'allenCCFbregma' ) );
+    cmap_filename = [ allenCCF_path filesep 'allen_ccf_colormap_2017.mat' ];
+    load( cmap_filename );
+    
+    for curr_probe = 1 : n_probes
+        curr_axes = subplot( 1, n_probes, curr_probe );
+        trajectory_area_boundaries = ...
+            [1;find(diff(probe_ccf(curr_probe).trajectory_areas) ~= 0);length(probe_ccf(curr_probe).trajectory_areas)];
+        trajectory_area_centers = trajectory_area_boundaries(1:end-1) + diff(trajectory_area_boundaries)/2;
+        trajectory_area_labels = gui_data.st.safe_name(probe_ccf(curr_probe).trajectory_areas(round(trajectory_area_centers)));
+        
+        image(probe_ccf(curr_probe).trajectory_areas);
+        colormap(curr_axes,cmap);
+        caxis([1,size(cmap,1)])
+        set(curr_axes,'YTick',trajectory_area_centers,'YTickLabels',trajectory_area_labels);
+        set(curr_axes,'XTick',[]);
+        title(['Probe ' num2str(curr_probe)]);
+        
+    end
+    
+end
