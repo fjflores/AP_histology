@@ -23,7 +23,7 @@ end
 
 
 % Create figure, set button functions
-gui_fig = figure( ...
+gui_fig = figure(...
     'WindowScrollWheelFcn', @scroll_atlas_slice, ...
     'KeyPressFcn', @keypress );
 
@@ -63,6 +63,7 @@ caxis( [ 0, 400 ] );
 
 % Load previously defined histology, if exists
 ccfDir = fullfile( slice_im_path, 'histology_ccf.mat' );
+guiData.prevHistology = false;
 if isfile( ccfDir )
     prompt = 'Want to load previous histology?';
     str = questdlg( prompt );
@@ -71,6 +72,7 @@ if isfile( ccfDir )
         fprintf( 'Loading histology file...' );
         load( ccfDir )
         disp( 'Done.' );
+        guiData.prevHistology = true;
         
     else
         msg = 'Histology file not loaded.';
