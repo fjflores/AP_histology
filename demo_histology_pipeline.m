@@ -6,14 +6,14 @@ close all
 clc
 
 % Load CCF atlas
-allen_atlas_path = 'E:\Code\Matlab\Neuropixels-course\allenCCF';
+allen_atlas_path = 'D:\Code\Matlab\Neuropixels-course\allenCCF';
 tv = readNPY([allen_atlas_path filesep 'template_volume_10um.npy']);
 av = readNPY([allen_atlas_path filesep 'annotation_volume_10um_by_index.npy']);
 st = loadStructureTree([allen_atlas_path filesep 'structure_tree_safe_2017.csv']);
 
 % Set paths for histology images and directory to save slice/alignment
-im_path = 'E:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
-slice_path = [im_path filesep 'slices'];
+im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
+slice_path = [ im_path filesep 'slices' ];
 
 %% 2) Preprocess slide images to produce slice images
 
@@ -32,22 +32,22 @@ resize_factor = 0.25; % (slides tiff: resize factor)
 slice_images = true; % (images are already individual slices)
 
 % Preprocess images
-AP_process_histology(im_path,resize_factor,slice_path);
+AP_process_histology( im_path, resize_factor, slice_path );
 
 % (optional) Rotate, center, pad, flip slice images
-AP_rotate_histology(slice_path);
+AP_rotate_histology( slice_path );
 
 %% 3) Align CCF to slices
 
 % Find CCF slices corresponding to each histology slice
-AP_grab_histology_ccf(tv,av,st,slice_path);
+AP_grab_histology_ccf( tv, av, st, slice_path );
 
 % Align CCF slices and histology slices
 % (first: automatically, by outline)
-AP_auto_align_histology_ccf(slice_path);
+AP_auto_align_histology_ccf( slice_path );
 
 % (second: curate manually)
-AP_manual_align_histology_ccf(tv,av,st,slice_path);
+AP_manual_align_histology_ccf( tv, av, st, slice_path );
 
 
 %% 4) Utilize aligned CCF
