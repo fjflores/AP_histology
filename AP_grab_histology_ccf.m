@@ -3,96 +3,59 @@ function AP_grab_histology_ccf(tv,av,st,slice_im_path)
 % Andy Peters (peters.andrew.j@gmail.com)
 
 % Initialize guidata
-guiData = struct;
-guiData.tv = tv;
-guiData.av = av;
-guiData.st = st;
+gui_data = struct;
+gui_data.tv = tv;
+gui_data.av = av;
+gui_data.st = st;
 
 % Load in slice images
-guiData.slice_im_path = slice_im_path;
-slice_im_dir = dir( [ slice_im_path filesep '*.tif' ] );
-slice_im_fn = natsortfiles(...
-    cellfun( @( path,fn )...
-    [ path filesep fn ],...
-    { slice_im_dir.folder },{ slice_im_dir.name }, 'uni', false ) );
-guiData.slice_im = cell( length( slice_im_fn ), 1 );
-for curr_slice = 1 : length( slice_im_fn )
-    guiData.slice_im{curr_slice} = imread(slice_im_fn{curr_slice});
-    
+gui_data.slice_im_path = slice_im_path;
+slice_im_dir = dir([slice_im_path filesep '*.tif']);
+slice_im_fn = natsortfiles(cellfun(@(path,fn) [path filesep fn], ...
+    {slice_im_dir.folder},{slice_im_dir.name},'uni',false));
+gui_data.slice_im = cell(length(slice_im_fn),1);
+for curr_slice = 1:length(slice_im_fn)
+    gui_data.slice_im{curr_slice} = imread(slice_im_fn{curr_slice});
 end
-
 
 % Create figure, set button functions
-gui_fig = figure(...
-    'WindowScrollWheelFcn', @scroll_atlas_slice, ...
-    'KeyPressFcn', @keypress );
+gui_fig = figure( ...
+    'WindowScrollWheelFcn',@scroll_atlas_slice, ...
+    'KeyPressFcn',@keypress);
 
 % Set up axis for histology image
-guiData.histology_ax = subplot( 1, 2, 1, 'YDir', 'reverse' ); 
-hold on
-axis image off
-curr_histology_slice = 1;
-guiData.histology_im_h = image(...
-    guiData.slice_im{ curr_histology_slice },...
-    'Parent', guiData.histology_ax );
-guiData.curr_histology_slice = curr_histology_slice;
-thisSlice = slice_im_fn{ curr_histology_slice };
-[ ~, fn, ext ] = fileparts( thisSlice );
-fprintf( 'Slice loaded: %s\n', [ fn ext ] )
-title( guiData.histology_ax, 'No saved atlas position' );
+gui_data.histology_ax = subplot(1,2,1,'YDir','reverse'); 
+hold on; axis image off;
+gui_data.histology_im_h = image(gui_data.slice_im{1},'Parent',gui_data.histology_ax);
+gui_data.curr_histology_slice = 1;
+title(gui_data.histology_ax,'No saved atlas position');
 
 % Set up 3D atlas axis
-guiData.atlas_ax = subplot( 1, 2, 2, ...
-    'ZDir', 'reverse',...
-    'color', 'k',...
-    'XTick',[ 1, size( av, 1 ) ],...
-    'XTickLabel', { 'Front', 'Back' },...
-    'YTick',[ 1, size( av, 3 ) ],...
-    'YTickLabel', { 'Left', 'Right' }, ...
-    'ZTick', [ 1, size( av, 2 ) ],...
-    'ZTickLabel', { 'Top', 'Bottom' } );
+gui_data.atlas_ax = subplot(1,2,2, ...
+    'ZDir','reverse','color','k', ...
+    'XTick',[1,size(av,1)],'XTickLabel',{'Front','Back'}, ...
+    'YTick',[1,size(av,3)],'YTickLabel',{'Left','Right'}, ...
+    'ZTick',[1,size(av,2)],'ZTickLabel',{'Top','Bottom'});
 hold on
 axis vis3d equal manual
-view( [ 90, 0 ] );
-[ ap_max, dv_max, ml_max ] = size( tv );
-xlim( [ 1, ap_max ] );
-ylim( [ 1, ml_max ] );
-zlim( [ 1, dv_max ] );
-colormap( guiData.atlas_ax, 'gray' );
-caxis( [ 0, 400 ] );
-
-% Load previously defined histology, if exists
-ccfDir = fullfile( slice_im_path, 'histology_ccf.mat' );
-guiData.prevHistology = false;
-if isfile( ccfDir )
-    prompt = 'Want to load previous histology?';
-    str = questdlg( prompt );
-    
-    if strcmpi( str, 'Yes' )
-        fprintf( 'Loading histology file...' );
-        load( ccfDir )
-        disp( 'Done.' );
-        guiData.prevHistology = true;
-        
-    else
-        msg = 'Histology file not loaded.';
-        disp( msg );
-        
-    end
-    
-end
-
+view([90,0]);
+[ap_max,dv_max,ml_max] = size(tv);
+xlim([1,ap_max]);
+ylim([1,ml_max]);
+zlim([1,dv_max]);
+colormap(gui_data.atlas_ax,'gray');
+caxis([0,400]);
 
 % Create slice object and first slice point
-guiData.atlas_slice_plot = surface(guiData.atlas_ax,'EdgeColor','none'); % Slice on 3D atlas
-guiData.atlas_slice_point = camtarget;
+gui_data.atlas_slice_plot = surface(gui_data.atlas_ax,'EdgeColor','none'); % Slice on 3D atlas
+gui_data.atlas_slice_point = camtarget;
 
 % Set up atlas parameters to save for histology
-guiData.slice_vector = nan(1,3);
-guiData.slice_points = nan(length(guiData.slice_im),3);
+gui_data.slice_vector = nan(1,3);
+gui_data.slice_points = nan(length(gui_data.slice_im),3);
 
 % Upload gui data
-guidata(gui_fig,guiData);
+guidata(gui_fig,gui_data);
 
 % Draw the first slice
 update_atlas_slice(gui_fig);
@@ -287,12 +250,7 @@ gui_data = guidata(gui_fig);
 [tv_slice,av_slice,plane_ap,plane_ml,plane_dv] = grab_atlas_slice(gui_data,3);
 
 % Update the slice display
-set(...
-    gui_data.atlas_slice_plot,...
-    'XData', plane_ap,...
-    'YData', plane_ml,...
-    'ZData', plane_dv,...
-    'CData', tv_slice);
+set(gui_data.atlas_slice_plot,'XData',plane_ap,'YData',plane_ml,'ZData',plane_dv,'CData',tv_slice);
 
 % Upload gui_data
 guidata(gui_fig, gui_data);
