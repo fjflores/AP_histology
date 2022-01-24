@@ -57,7 +57,7 @@ gui_fig = figure;
 
 % Set up 3D plot for volume viewing
 axes_atlas = axes;
-% [~, brain_outline] = plotBrainGrid([],axes_atlas);
+[~, brain_outline] = plotBrainGrid([],axes_atlas);
 set(axes_atlas,'ZDir','reverse');
 hold(axes_atlas,'on');
 axis vis3d equal on manual
@@ -93,20 +93,23 @@ for curr_slice = 1:length(gui_data.slice_im)
     
     % Get thresholded image
     curr_slice_im = gui_data.atlas_aligned_histology{curr_slice}(:,:,channel);
-    slice_alpha = curr_slice_im;
+    
+    thisAP = gui_data.histology_ccf(curr_slice).plane_ap;
+    thisML = gui_data.histology_ccf(curr_slice).plane_ml;
+    thisDV = gui_data.histology_ccf(curr_slice).plane_dv;
     
     % Draw if thresholded pixels (ignore if not)
     if any(curr_slice_im(:) > thr)
         % Draw a surface at CCF coordinates
-        histology_surf(curr_slice) = surface( ...
-            gui_data.histology_ccf(curr_slice).plane_ap, ...
-            gui_data.histology_ccf(curr_slice).plane_ml, ...
-            gui_data.histology_ccf(curr_slice).plane_dv);
+        histology_surf(curr_slice) = surface(...
+            thisAP,...
+            thisML,...
+            thisDV );
         
         % Draw the slice on the surface
         histology_surf(curr_slice).FaceColor = 'texturemap';
         histology_surf(curr_slice).EdgeColor = 'none';
-        histology_surf(curr_slice).CData = gui_data.atlas_aligned_histology{curr_slice}(:,:,channel);
+        histology_surf(curr_slice).CData = curr_slice_im;
         
         % Set the alpha data
         max_alpha = 1;
@@ -116,6 +119,7 @@ for curr_slice = 1:length(gui_data.slice_im)
         histology_surf(curr_slice).AlphaData = slice_alpha;
         
         drawnow;
+        
     end
 end
 
