@@ -6,7 +6,8 @@ close all
 clc
 
 % Load CCF atlas
-allen_atlas_path = 'E:\Code\Matlab\Neuropixels-course\allenCCF';
+% allen_atlas_path = 'E:\Code\Matlab\AllenCCF';
+allen_atlas_path = 'E:\Dropbox (MIT)\Protocols\Histology\AllenCCF';
 tv = readNPY([allen_atlas_path filesep 'template_volume_10um.npy']);
 av = readNPY([allen_atlas_path filesep 'annotation_volume_10um_by_index.npy']);
 st = loadStructureTree([allen_atlas_path filesep 'structure_tree_safe_2017.csv']);
@@ -58,7 +59,7 @@ AP_view_aligned_histology(st,slice_path);
 % Display histology within 3D CCF
 thr = 50;
 ch = 3; % get blue channel.
-AP_view_aligned_histology_volume(tv,av,st,slice_path,ch,thr);
+FF_view_aligned_histology_volume(tv,av,st,slice_path,ch,thr);
 
 % Get probe trajectory from histology, convert to CCF coordinates
 AP_get_probe_histology(tv,av,st,slice_path);
