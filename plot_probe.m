@@ -1,23 +1,27 @@
-function plot_probe( tv, probe_ccf, coords, areas )
+function plot_probe( av, probe_ccf, coords, areas )
 % PLOT_PROBE plots histologically-defined probe points within Allen CCF.
 %
 % Usage:
 % plot_probe( tv, probe_ccf, areas )
 %
 % Input:
-% tv: annotated volume dta from Allen CCF.
+% tv: annotated volume data from Allen CCF.
 % probe_ccf: probe location data from AP_get_probe_histology.
-% areas: Optional. If true, plots the brain areas spanned by the probe.
-%        Default false.
+% coords: (Opt.) what coordinates to use. If 'ccf' uses the original common 
+%         coordinate framework and a brain grid. If 'pax', transfomrs the 
+%         probe ccf coordinates to paxinos and plots a brain surface.
+%         Default 'pax'.
+% areas: (Opt.) If true, plots the brain areas spanned by the probe.
+%        Default 'false'.
 %
-% Ouptput:
+% Output:
 % Figure with brain volume, probe start and end points, and regression line
 % for the points.
 
 
 % Check user input.
 if nargin < 3
-    coords = 'pax'
+    coords = 'pax';
     
 end
 
@@ -25,7 +29,6 @@ if nargin < 4
     areas = false;
     
 end
-
 
 % Plot probe trajectories
 switch coords
@@ -38,7 +41,7 @@ switch coords
         axis vis3d equal off manual
         view( [ -30, 25 ] );
         caxis( [ 0 300 ] );
-        [ ap_max, dv_max, ml_max ] = size( tv );
+        [ ap_max, dv_max, ml_max ] = size( av );
         xlim( [ -10, ap_max + 10 ] )
         ylim( [ -10, ml_max + 10 ] )
         zlim( [ -10, dv_max + 10 ] )
@@ -46,20 +49,25 @@ switch coords
         h.Enable = 'on';
         
     case 'pax'
-        plotBrainSurf( tv, true )
+        axes_atlas = plotBrainSurf( av, true );
         set( axes_atlas, 'ZDir', 'reverse' );
         hold( axes_atlas, 'on' );
         axis vis3d equal off manual
         view( [ -30, 25 ] );
+        probe_ccf = trprobeccf( probe_ccf );
+        
+    otherwise
+        error( 'Must provide valid coordinates, either ''pax'' or ''ccf''.' )
         
 end
 
 n_probes = length( probe_ccf );
 for curr_probe = 1 : n_probes
+    thisPoints = probe_ccf( curr_probe ).points;
     
     % Plot points and line of best fit
-    r0 = mean( probe_ccf( curr_probe ).points, 1 );
-    xyz = bsxfun( @minus, probe_ccf( curr_probe ).points, r0 );
+    r0 = mean( thisPoints, 1 );
+    xyz = bsxfun( @minus, thisPoints, r0 );
     [ ~, ~, V ] = svd( xyz, 0 );
     histology_probe_direction = V( :, 1 );
     
@@ -73,9 +81,9 @@ for curr_probe = 1 : n_probes
     probe_fit_line = bsxfun( @plus,...
         bsxfun( @times, line_eval', histology_probe_direction' ), r0 );
     plot3(...
-        probe_ccf( curr_probe ).points( :, 1 ), ...
-        probe_ccf( curr_probe ).points( :, 3 ), ...
-        probe_ccf( curr_probe ).points( :, 2 ), ...
+        thisPoints( :, 1 ), ...
+        thisPoints( :, 3 ), ...
+        thisPoints( :, 2 ), ...
         '.',...
         'color', probe_ccf( curr_probe ).probe_color,...
         'MarkerSize', 20 );
