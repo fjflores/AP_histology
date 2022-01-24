@@ -6,14 +6,13 @@ close all
 clc
 
 % Load CCF atlas
-% allen_atlas_path = 'E:\Code\Matlab\AllenCCF';
-allen_atlas_path = 'E:\Dropbox (MIT)\Protocols\Histology\AllenCCF';
+allen_atlas_path = 'D:\Dropbox (MIT)\Protocols\Histology\AllenCCF';
 tv = readNPY([allen_atlas_path filesep 'template_volume_10um.npy']);
 av = readNPY([allen_atlas_path filesep 'annotation_volume_10um_by_index.npy']);
 st = loadStructureTree([allen_atlas_path filesep 'structure_tree_safe_2017.csv']);
 
 % Set paths for histology images and directory to save slice/alignment
-im_path = 'E:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
+im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
 slice_path = [im_path filesep 'slices'];
 
 %% 2) Preprocess slide images to produce slice images

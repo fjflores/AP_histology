@@ -57,10 +57,10 @@ gui_fig = figure;
 
 % Set up 3D plot for volume viewing
 axes_atlas = axes;
-[~, brain_outline] = plotBrainGrid([],axes_atlas);
+% [~, brain_outline] = plotBrainGrid([],axes_atlas);
 set(axes_atlas,'ZDir','reverse');
 hold(axes_atlas,'on');
-axis vis3d equal off manual
+axis vis3d equal on manual
 view([-30,25]);
 caxis([0 300]);
 [ap_max,dv_max,ml_max] = size(tv);
