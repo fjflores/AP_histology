@@ -1,4 +1,4 @@
-function FF_view_aligned_histology_volume(tv,av,st,slice_im_path,channel,thr)
+function FF_view_aligned_histology_volume(tv,av,slice_im_path,channel,thr)
 % AP_view_aligned_histology_volume(tv,av,st,slice_im_path,channel)
 %
 % Plot histology warped onto CCF volume
@@ -10,7 +10,6 @@ function FF_view_aligned_histology_volume(tv,av,st,slice_im_path,channel,thr)
 gui_data = struct;
 gui_data.tv = tv;
 gui_data.av = av;
-gui_data.st = st;
 
 % Load in slice images
 gui_data.slice_im_path = slice_im_path;
