@@ -1,4 +1,4 @@
-function FF_view_aligned_histology_volume(tv,av,slice_im_path,channel,thr)
+function FF_view_aligned_histology_volume(tv,av,slice_im_path,channel,thr,coords)
 % AP_view_aligned_histology_volume(tv,av,st,slice_im_path,channel)
 %
 % Plot histology warped onto CCF volume
@@ -42,7 +42,7 @@ for curr_slice = 1:length(gui_data.slice_im)
     tform.T = gui_data.histology_ccf_alignment{curr_slice};
     % (transform is CCF -> histology, invert for other direction)
     tform = invert(tform);
-
+    
     tform_size = imref2d([size(gui_data.histology_ccf(curr_slice).av_slices,1), ...
         size(gui_data.histology_ccf(curr_slice).av_slices,2)]);
     
@@ -55,17 +55,28 @@ end
 gui_fig = figure;
 
 % Set up 3D plot for volume viewing
-axes_atlas = axes;
-[~, brain_outline] = plotBrainGrid([],axes_atlas);
-set(axes_atlas,'ZDir','reverse');
-hold(axes_atlas,'on');
-axis vis3d equal on manual
+switch coords
+    case 'ccf'
+        axes_atlas = axes;
+        [~, brain_outline] = plotBrainGrid([],axes_atlas);
+        set(axes_atlas,'ZDir','reverse');
+        hold(axes_atlas,'on');
+        axis vis3d equal on manual
+        caxis([0 300]);
+        [ap_max,dv_max,ml_max] = size(tv);
+        xlim([-10,ap_max+10])
+        ylim([-10,ml_max+10])
+        zlim([-10,dv_max+10])
+        
+    case 'pax'
+        axes_atlas = plotBrainSurf( av );
+        
+    otherwise
+        error( 'Coordinates must be either ''ccf'' or ''pax''.' )
+        
+end
 view([-30,25]);
-caxis([0 300]);
-[ap_max,dv_max,ml_max] = size(tv);
-xlim([-10,ap_max+10])
-ylim([-10,ml_max+10])
-zlim([-10,dv_max+10])
+
 
 switch channel
     case 1
@@ -92,18 +103,36 @@ for curr_slice = 1:length(gui_data.slice_im)
     
     % Get thresholded image
     curr_slice_im = gui_data.atlas_aligned_histology{curr_slice}(:,:,channel);
-    
     thisAP = gui_data.histology_ccf(curr_slice).plane_ap;
     thisML = gui_data.histology_ccf(curr_slice).plane_ml;
     thisDV = gui_data.histology_ccf(curr_slice).plane_dv;
     
+    switch coords
+        case 'pax'
+            bregma = allenCCFbregma();
+            thisAP = ( thisAP - bregma( 1 ) ) / 100;
+            thisML = ( thisML - bregma( 3 ) ) / 100;
+            thisDV = ( ( thisDV - bregma( 2 ) ) / 100 ) * 0.945;
+            
+    end
+    
     % Draw if thresholded pixels (ignore if not)
     if any(curr_slice_im(:) > thr)
         % Draw a surface at CCF coordinates
-        histology_surf(curr_slice) = surface(...
-            thisAP,...
-            thisML,...
-            thisDV );
+        switch coords
+            case 'ccf'
+                histology_surf(curr_slice) = surface(...
+                    thisAP,...
+                    thisML,...
+                    thisDV );
+                
+            case 'pax'
+                histology_surf(curr_slice) = surface(...
+                    thisML,...
+                    -thisAP,...
+                    thisDV );
+                
+        end
         
         % Draw the slice on the surface
         histology_surf(curr_slice).FaceColor = 'texturemap';
@@ -120,6 +149,7 @@ for curr_slice = 1:length(gui_data.slice_im)
         drawnow;
         
     end
+    
 end
 
 
@@ -128,36 +158,36 @@ end
 % keyboard
 
 % thresh_volume = false(size(tv));
-% 
+%
 % for curr_slice = 1:length(gui_data.slice_im)
-%     
+%
 %     % Get thresholded image
 %     curr_slice_im = gui_data.atlas_aligned_histology{curr_slice}(:,:,channel);
 %     slice_alpha = curr_slice_im;
 %     slice_alpha(slice_alpha < 100) = 0;
-%     
+%
 %     slice_thresh = curr_slice_im > 200;
-%     
+%
 %     slice_thresh_ap = round(gui_data.histology_ccf(curr_slice).plane_ap(slice_thresh));
 %     slice_thresh_dv = round(gui_data.histology_ccf(curr_slice).plane_dv(slice_thresh));
 %     slice_thresh_ml = round(gui_data.histology_ccf(curr_slice).plane_ml(slice_thresh));
-%     
+%
 %     thresh_idx = sub2ind(size(tv),slice_thresh_ap,slice_thresh_dv,slice_thresh_ml);
 %     thresh_volume(thresh_idx) = true;
-%     
+%
 % end
-% 
+%
 % thresh_volume_dilate = imdilate(thresh_volume,strel('sphere',5));
-% 
+%
 % sphere_size = (4/3)*pi*5^3;
 % a = bwareaopen(thresh_volume_dilate,round(sphere_size*20));
 % b = imdilate(a,strel('sphere',5));
 % c = imresize3(+b,1/10,'nearest');
-% 
+%
 % ap = linspace(1,size(tv,1),size(c,1));
 % dv = linspace(1,size(tv,2),size(c,2));
 % ml = linspace(1,size(tv,3),size(c,3));
-% 
+%
 % figure;
 % plotBrainGrid([],gca); hold on;
 % isosurface(ap,ml,dv,permute(c,[3,1,2]));
