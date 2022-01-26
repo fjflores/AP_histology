@@ -60,7 +60,7 @@ AP_view_aligned_histology(st,slice_path);
 % Display histology within 3D CCF
 thr = 50;
 ch = 3; % get blue channel.
-AP_view_aligned_histology_volume(tv,av,st,slice_path,ch,thr);
+FF_view_aligned_histology_volume(av,slice_path,ch,thr,'ccf');
 
 % Get probe trajectory from histology, convert to CCF coordinates
 AP_get_probe_histology(tv,av,st,slice_path);

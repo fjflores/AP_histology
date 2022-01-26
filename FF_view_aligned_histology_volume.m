@@ -51,7 +51,7 @@ for curr_slice = 1:length(gui_data.slice_im)
 end
 
 % Create figure
-gui_fig = figure;
+gui_fig = figure( 'Color', 'w' );
 
 % Set up 3D plot for volume viewing
 switch coords
