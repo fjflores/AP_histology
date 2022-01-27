@@ -1,11 +1,11 @@
-function plot_probe( av, probe_ccf, coords, areas )
+function plot_probe( av, probe_ccf, coords, st )
 % PLOT_PROBE plots histologically-defined probe points within Allen CCF.
 %
 % Usage:
-% plot_probe( tv, probe_ccf, areas )
+% plot_probe( av, probe_ccf, areas )
 %
 % Input:
-% tv: annotated volume data from Allen CCF.
+% av: annotated volume data from Allen CCF.
 % probe_ccf: probe location data from AP_get_probe_histology.
 % coords: (Opt.) what coordinates to use. If 'ccf' uses the original common 
 %         coordinate framework and a brain grid. If 'pax', transfomrs the 
@@ -19,7 +19,7 @@ function plot_probe( av, probe_ccf, coords, areas )
 % for the points.
 
 
-% Check user input.
+% Check user input and set defaults.
 if nargin < 3
     coords = 'pax';
     
@@ -27,6 +27,11 @@ end
 
 if nargin < 4
     areas = false;
+    
+end
+
+if nargin == 4
+    areas = true;
     
 end
 
@@ -49,11 +54,14 @@ switch coords
         h.Enable = 'on';
         
     case 'pax'
+        figure( 'Name','Probe trajectories' );
         axes_atlas = plotBrainSurf( av, true );
         set( axes_atlas, 'ZDir', 'reverse' );
         hold( axes_atlas, 'on' );
         axis vis3d equal off manual
         view( [ -30, 25 ] );
+        h = rotate3d( axes_atlas );
+        h.Enable = 'on';
         probe_ccf = trprobeccf( probe_ccf );
         
     otherwise
@@ -98,7 +106,7 @@ if areas
         trajectory_area_boundaries = ...
             [1;find(diff(probe_ccf(curr_probe).trajectory_areas) ~= 0);length(probe_ccf(curr_probe).trajectory_areas)];
         trajectory_area_centers = trajectory_area_boundaries(1:end-1) + diff(trajectory_area_boundaries)/2;
-        trajectory_area_labels = gui_data.st.safe_name(probe_ccf(curr_probe).trajectory_areas(round(trajectory_area_centers)));
+        trajectory_area_labels = st.safe_name(probe_ccf(curr_probe).trajectory_areas(round(trajectory_area_centers)));
         
         image(probe_ccf(curr_probe).trajectory_areas);
         colormap(curr_axes,cmap);
