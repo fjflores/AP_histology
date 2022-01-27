@@ -13,7 +13,7 @@ st = loadStructureTree([allen_atlas_path filesep 'structure_tree_safe_2017.csv']
 
 % Set paths for histology images and directory to save slice/alignment
 im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
-slice_path = [im_path filesep 'slices'];
+slice_path = [im_path filesep 'slices_practice'];
 
 %% 2) Preprocess slide images to produce slice images
 
@@ -58,7 +58,8 @@ AP_view_aligned_histology(st,slice_path);
 % Display histology within 3D CCF
 thr = 50;
 ch = 3; % get blue channel.
-FF_view_aligned_histology_volume(av,slice_path,ch,thr,'ccf');
+AP_view_aligned_histology_volume(tv,av,st,slice_path,ch,thr)
+% FF_view_aligned_histology_volume(av,slice_path,ch,thr,'ccf');
 
 % Get probe trajectory from histology, convert to CCF coordinates
 AP_get_probe_histology(tv,av,st,slice_path);
