@@ -64,33 +64,21 @@ end
 n_probes = length( probe_ccf );
 for curr_probe = 1 : n_probes
     thisPoints = probe_ccf( curr_probe ).points;
+    xyz = [ thisPoints( :, 1 ), thisPoints( :, 3 ), thisPoints( :, 2 ) ];
+    probe_fit_line = fit3d( xyz );
     
     % Plot points and line of best fit
-    r0 = mean( thisPoints, 1 );
-    xyz = bsxfun( @minus, thisPoints, r0 );
-    [ ~, ~, V ] = svd( xyz, 0 );
-    histology_probe_direction = V( :, 1 );
-    
-    % (make sure the direction goes down in DV - flip if it's going up)
-    if histology_probe_direction(2) < 0
-        histology_probe_direction = -histology_probe_direction;
-        
-    end
-    
-    line_eval = [ -1000, 1000 ];
-    probe_fit_line = bsxfun( @plus,...
-        bsxfun( @times, line_eval', histology_probe_direction' ), r0 );
     plot3(...
-        thisPoints( :, 1 ), ...
-        thisPoints( :, 3 ), ...
-        thisPoints( :, 2 ), ...
+        xyz( :, 1 ), ...
+        xyz( :, 2 ), ...
+        xyz( :, 3 ), ...
         '.',...
         'color', probe_ccf( curr_probe ).probe_color,...
         'MarkerSize', 20 );
     line(...
         probe_fit_line( :, 1 ),...
-        probe_fit_line( :, 3 ),...
         probe_fit_line( :, 2 ),...
+        probe_fit_line( :, 3 ),...
         'color', probe_ccf( curr_probe ).probe_color,...
         'linewidth', 2 )
     
@@ -122,3 +110,18 @@ if areas
     end
     
 end
+
+function xyzEst = fit3d( xyz )
+
+xyzHat = mean( xyz, 1 );
+A = xyz - xyzHat;
+N = length( A );
+C = ( A' * A ) / ( N - 1 ); 
+[ R, ~, ~ ] = svd( C, 0 );
+x = A * R( :, 1 );    % project residuals on R(:,1) 
+xMin = min( x );
+xMax = max( x );
+dx = xMax - xMin;
+Xa = ( xMin + 0.01 * dx ) * R( :, 1 )' + xyzHat;
+Xb = ( xMax + 0.05 * dx ) * R( :, 1 )' + xyzHat;
+xyzEst = [ Xa; Xb ];
