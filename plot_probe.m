@@ -2,17 +2,16 @@ function plot_probe( av, probe_ccf, coords, st )
 % PLOT_PROBE plots histologically-defined probe points within Allen CCF.
 %
 % Usage:
-% plot_probe( av, probe_ccf, areas )
+% plot_probe( av, probe_ccf, areas, st )
 %
 % Input:
 % av: annotated volume data from Allen CCF.
 % probe_ccf: probe location data from AP_get_probe_histology.
-% coords: (Opt.) what coordinates to use. If 'ccf' uses the original common 
-%         coordinate framework and a brain grid. If 'pax', transfomrs the 
-%         probe ccf coordinates to paxinos and plots a brain surface.
-%         Default 'pax'.
-% areas: (Opt.) If true, plots the brain areas spanned by the probe.
-%        Default 'false'.
+% coords: Optional. Defines what coordinates to use. If 'ccf' uses the 
+%         original common coordinate framework and a brain grid. If 'pax', 
+%         transforms the probe ccf coordinates to paxinos and plots a brain
+%         surface. Default 'pax'.
+% st: Optional. If passed, plots the brain areas spanned by the probe.
 %
 % Output:
 % Figure with brain volume, probe start and end points, and regression line
