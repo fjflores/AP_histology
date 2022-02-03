@@ -6,18 +6,21 @@ close all
 clc
 
 % Load CCF atlas
-allen_atlas_path = 'D:\Dropbox (MIT)\Protocols\Histology\AllenCCF';
+% allen_atlas_path = 'D:\Dropbox (MIT)\Protocols\Histology\AllenCCF';
+allen_atlas_path = 'C:\Users\BBU\Dropbox (MIT)\Protocols\Histology\AllenCCF';
 tv = readNPY([allen_atlas_path filesep 'template_volume_10um.npy']);
 av = readNPY([allen_atlas_path filesep 'annotation_volume_10um_by_index.npy']);
 st = loadStructureTree([allen_atlas_path filesep 'structure_tree_safe_2017.csv']);
 
 % Set paths for histology images and directory to save slice/alignment
-im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
-slice_path = [im_path filesep 'slices'];
-% =======
+<<<<<<< HEAD
 % im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
-% slice_path = [im_path filesep 'slices_practice'];
-
+im_path = 'C:\Users\BBU\Dropbox (MIT)\Electrical_anesthesia\Results\M080\Histology_proc';
+slice_path = [im_path filesep 'slices'];
+=======
+im_path = 'D:\Dropbox (Personal)\Projects\017_Electrical_anesthesia\Results\M079\Histology_proc';
+slice_path = [im_path filesep 'slices_practice'];
+>>>>>>> 863a287e552f8622caf792e55627b4daa2a201c1
 
 %% 2) Preprocess slide images to produce slice images
 
