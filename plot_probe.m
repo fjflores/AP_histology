@@ -1,8 +1,10 @@
-function ccf_areas = plot_probe( av, probe_ccf, coords, st )
+function [ probe_fit, R2, varargout ] = plot_probe( av, probe_ccf, coords, st )
 % PLOT_PROBE plots histologically-defined probe points within Allen CCF.
 %
 % Usage:
 % plot_probe( av, probe_ccf, areas, st )
+% [ probe_fit, R2 ] = plot_probe( av, probe_ccf, coords, st )
+% [ probe_fit, R2, ccf_areas ] = plot_probe( av, probe_ccf, coords, st )
 %
 % Input:
 % av: annotated volume data from Allen CCF.
@@ -11,7 +13,7 @@ function ccf_areas = plot_probe( av, probe_ccf, coords, st )
 %         original common coordinate framework and a brain grid. If 'pax',
 %         transforms the probe ccf coordinates to paxinos and plots a brain
 %         surface. Default 'pax'.
-% st: Optional. If passed, plots the brain areas spanned by the probe.
+% st: Optional. If passed, plots the brain areas at the probe tip.
 %
 % Output:
 % Figure with brain volume, probe start and end points, and regression line
@@ -70,6 +72,7 @@ end
 
 n_probes = length( probe_ccf );
 probe_fit = cell( 1, n_probes );
+R2 = nan( 2, 1 );
 for curr_probe = 1 : n_probes
     switch coords
         case 'ccf'
@@ -80,7 +83,7 @@ for curr_probe = 1 : n_probes
             
     end
     xyz = [ thisPoints( :, 1 ), thisPoints( :, 3 ), thisPoints( :, 2 ) ];
-    probe_fit{ curr_probe } = fit3d( xyz );
+    [ probe_fit{ curr_probe }, R2( curr_probe, 1 ) ] = fit3d( xyz );
     
     % Plot points and line of best fit
     plot3(...
@@ -145,13 +148,20 @@ for curr_probe = 1 : n_probes
     
 end
 
-function xyzEst = fit3d( xyz )
+if areas
+    varargout{ 1 } = ccf_areas;
+    
+end
+
+function [ xyzEst, R2 ] = fit3d( xyz )
 
 xyzHat = mean( xyz, 1 );
 A = xyz - xyzHat;
 N = length( A );
 C = ( A' * A ) / ( N - 1 );
-[ R, ~, ~ ] = svd( C, 0 );
+[ R, D, ~ ] = svd( C, 0 );
+D = diag( D );
+R2 = D( 1 ) / sum( D );
 x = A * R( :, 1 );    % project residuals on R(:,1)
 xMin = min( x );
 xMax = max( x );
