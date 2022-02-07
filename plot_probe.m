@@ -1,10 +1,10 @@
-function [ probe_fit, R2, varargout ] = plot_probe( av, probe_ccf, coords, st )
+function axes_atlas = plot_probe( av, probe_ccf, coords, st )
 % PLOT_PROBE plots histologically-defined probe points within Allen CCF.
 %
 % Usage:
-% plot_probe( av, probe_ccf, areas, st )
-% [ probe_fit, R2 ] = plot_probe( av, probe_ccf, coords, st )
-% [ probe_fit, R2, ccf_areas ] = plot_probe( av, probe_ccf, coords, st )
+% plot_probe( av, probe_ccf, coords )
+% plot_probe( av, probe_ccf, coords, st )
+% axes_atlas = plot_probe( av, probe_ccf, coords, st )
 %
 % Input:
 % av: annotated volume data from Allen CCF.
@@ -18,6 +18,7 @@ function [ probe_fit, R2, varargout ] = plot_probe( av, probe_ccf, coords, st )
 % Output:
 % Figure with brain volume, probe start and end points, and regression line
 % for the points.
+% axes_atlas: axes handles for brain plot.
 
 
 % Check user input and set defaults.
@@ -83,7 +84,7 @@ for curr_probe = 1 : n_probes
             
     end
     xyz = [ thisPoints( :, 1 ), thisPoints( :, 3 ), thisPoints( :, 2 ) ];
-    [ probe_fit{ curr_probe }, R2( curr_probe, 1 ) ] = fit3d( xyz );
+    probe_fit = fit3d( xyz );
     
     % Plot points and line of best fit
     plot3(...
@@ -94,9 +95,9 @@ for curr_probe = 1 : n_probes
         'color', probe_ccf( curr_probe ).probe_color,...
         'MarkerSize', 20 );
     line(...
-        probe_fit{ curr_probe }( :, 1 ),...
-        probe_fit{ curr_probe }( :, 2 ),...
-        probe_fit{ curr_probe }( :, 3 ),...
+        probe_fit( :, 1 ),...
+        probe_fit( :, 2 ),...
+        probe_fit( :, 3 ),...
         'color', probe_ccf( curr_probe ).probe_color,...
         'linewidth', 2 )
     
@@ -152,20 +153,3 @@ if areas
     varargout{ 1 } = ccf_areas;
     
 end
-
-function [ xyzEst, R2 ] = fit3d( xyz )
-
-xyzHat = mean( xyz, 1 );
-A = xyz - xyzHat;
-N = length( A );
-C = ( A' * A ) / ( N - 1 );
-[ R, D, ~ ] = svd( C, 0 );
-D = diag( D );
-R2 = D( 1 ) / sum( D );
-x = A * R( :, 1 );    % project residuals on R(:,1)
-xMin = min( x );
-xMax = max( x );
-dx = xMax - xMin;
-Xa = ( xMin + 0.01 * dx ) * R( :, 1 )' + xyzHat;
-Xb = ( xMax + 0.05 * dx ) * R( :, 1 )' + xyzHat;
-xyzEst = [ Xa; Xb ];
