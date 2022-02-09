@@ -72,8 +72,6 @@ switch coords
 end
 
 n_probes = length( probe_ccf );
-probe_fit = cell( 1, n_probes );
-R2 = nan( 2, 1 );
 for curr_probe = 1 : n_probes
     switch coords
         case 'ccf'
@@ -111,7 +109,7 @@ end
 %     allenCCF_path = fileparts( which( 'allenCCFbregma' ) );
 %     cmap_filename = [ allenCCF_path filesep 'allen_ccf_colormap_2017.mat' ];
 %     load( cmap_filename );
-%     
+    
 %     for curr_probe = 1 : n_probes
 %         curr_axes = subplot( 1, n_probes, curr_probe );
 %         trajectory_area_boundaries = ...
@@ -125,7 +123,7 @@ end
 %         trajectory_area_labels =...
 %             st.safe_name(...
 %             probe_ccf( curr_probe ).trajectory_areas( areaCent ) );
-%         
+        
 %         image( probe_ccf( curr_probe ).trajectory_areas );
 %         colormap( curr_axes, cmap );
 %         caxis( [ 1, size( cmap, 1 ) ] )
