@@ -1,48 +1,48 @@
-function plot_areas( sphynx_id, av, st )
+function plot_areas( sphynx_id, av, st, sliceSp, axAtlas )
+
+% Set up slice spacing
+if nargin < 4 || isempty( sliceSp )
+    sliceSp = 5;
+    
+end
+
+% Set up the atlas axes
+if nargin < 5
+    axAtlas = axes( 'ZDir', 'reverse' );
+
+end
+rotate3d( axAtlas, 'on' )
+axis( axAtlas, 'vis3d', 'equal', 'off' );
 
 % Get guidata
-bregma_ccf = allenCCFbregma;
-% gui_data = guidata(probe_atlas_gui);
-ap_coords = -((1:size(av,1))-bregma_ccf(1))/100;
-dv_coords = (((1:size(av,2))-bregma_ccf(2))/100)*0.85;
-ml_coords = -((1:size(av,3))-bregma_ccf(3))/100;
+bregma = allenCCFbregma;
+apCoords = -( ( 1 : size( av, 1 ) ) - bregma( 1 ) ) / 100;
+dvCoords = ( ( ( 1 : size( av, 2 ) ) - bregma( 2 ) ) / 100 ) * 0.85;
+mlCoords = -( ( 1 : size( av, 3 ) ) - bregma( 3 ) ) / 100;
 
-% if ~isempty(plot_structure)
-    
-    % Get all areas within and below the selected hierarchy level
-    plot_structure_id = st.structure_id_path{ sphynx_id };
-    plot_ccf_idx = find(...
-        cellfun( @( x ) contains( x, plot_structure_id ),...
-        st.structure_id_path ) );
-    
-    % plot the structure
-    slice_spacing = 5;
-    plot_structure_color = hex2dec(...
-        reshape( st.color_hex_triplet{ sphynx_id }, 2, [ ] )' ) ./ 255;
-    
-    [ curr_ml_grid, curr_ap_grid, curr_dv_grid ] = ndgrid(...
-    ml_coords( 1 : slice_spacing : end ),...
-    ap_coords( 1 : slice_spacing : end ), ...
-    dv_coords( 1 : slice_spacing : end ) );
-    
-    structure_3d = isosurface(...
-        curr_ml_grid, curr_ap_grid, curr_dv_grid,...
-        permute( ismember(...
-        av( 1 : slice_spacing : end, 1 : slice_spacing : end, 1 : slice_spacing : end ),...
-        plot_ccf_idx ), [ 3, 1, 2 ] ), 0 );
-    
-    structure_alpha = 0.2;
-%     gui_data.structure_plot_idx(end+1) = plot_structure;
-%     gui_data.handles.structure_patch(end+1) = 
-% Set up the atlas axes
-axes_atlas = axes( 'ZDir', 'reverse' );
-axis( axes_atlas, 'vis3d', 'equal', 'off' ); 
-% hold( axes_atlas, 'on' );
-    patch( axes_atlas, ...
-        'Vertices', structure_3d.vertices, ...
-        'Faces', structure_3d.faces, ...
-        'FaceColor', plot_structure_color,...
-        'EdgeColor', 'none',...
-        'FaceAlpha', structure_alpha);
-    
-% end
+% Get all areas within and below the selected hierarchy level
+structId = st.structure_id_path{ sphynx_id };
+ccfIdx = find(...
+    cellfun( @( x ) contains( x, structId ),...
+    st.structure_id_path ) );
+
+% plot the structure
+structColor = hex2dec(...
+    reshape( st.color_hex_triplet{ sphynx_id }, 2, [ ] )' ) ./ 255;
+[ mlGrid, apGrid, dvGrid ] = ndgrid(...
+    mlCoords( 1 : sliceSp : end ),...
+    apCoords( 1 : sliceSp : end ), ...
+    dvCoords( 1 : sliceSp : end ) );
+
+% decimate AV
+decAv = av( 1 : sliceSp : end, 1 : sliceSp : end, 1 : sliceSp : end );
+shuffAv = permute( ismember( decAv, ccfIdx ), [ 3, 1, 2 ] );
+struct3d = isosurface( mlGrid, apGrid, dvGrid, shuffAv, 0 );
+
+structAlpha = 0.2;
+patch( axAtlas, ...
+    'Vertices', struct3d.vertices, ...
+    'Faces', struct3d.faces, ...
+    'FaceColor', structColor',...
+    'EdgeColor', 'none',...
+    'FaceAlpha', structAlpha);
