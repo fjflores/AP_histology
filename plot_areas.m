@@ -1,4 +1,19 @@
-function plot_areas( sphynx_id, av, st, sliceSp, axAtlas )
+function plot_areas( sphynxId, av, st, sliceSp, axAtlas )
+% PLOT_AREAS plot a specific brain areas from Allen CCF.
+% 
+% Usage:
+% plot_areas( sphynxId, av, st, sliceSp, axAtlas )
+% 
+% Input:
+% sphynxId: sphynx structure ID number from the structure table.
+% av: annotated volume.
+% st: structures table.
+% sliceSp: Optional. decimation factor for AV.
+% axAtlas: Optional. axes to plot to.
+% 
+% Output:
+% Axes with volume plot of the desired structure.
+
 
 % Set up slice spacing
 if nargin < 4 || isempty( sliceSp )
@@ -21,14 +36,14 @@ dvCoords = ( ( ( 1 : size( av, 2 ) ) - bregma( 2 ) ) / 100 ) * 0.85;
 mlCoords = -( ( 1 : size( av, 3 ) ) - bregma( 3 ) ) / 100;
 
 % Get all areas within and below the selected hierarchy level
-structId = st.structure_id_path{ sphynx_id };
+structId = st.structure_id_path{ sphynxId };
 ccfIdx = find(...
     cellfun( @( x ) contains( x, structId ),...
     st.structure_id_path ) );
 
 % plot the structure
 structColor = hex2dec(...
-    reshape( st.color_hex_triplet{ sphynx_id }, 2, [ ] )' ) ./ 255;
+    reshape( st.color_hex_triplet{ sphynxId }, 2, [ ] )' ) ./ 255;
 [ mlGrid, apGrid, dvGrid ] = ndgrid(...
     mlCoords( 1 : sliceSp : end ),...
     apCoords( 1 : sliceSp : end ), ...
