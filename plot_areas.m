@@ -1,13 +1,12 @@
-function plot_areas( sphynxId, av, st, sliceSp, axAtlas )
+function plot_areas( areaCCF, av, sliceSp, axAtlas )
 % PLOT_AREAS plot a specific brain areas from Allen CCF.
 % 
 % Usage:
 % plot_areas( sphynxId, av, st, sliceSp, axAtlas )
 % 
 % Input:
-% sphynxId: sphynx structure ID number from the structure table.
+% areaCCF: structure with at least structure_id_path and color_hex fields.
 % av: annotated volume.
-% st: structures table.
 % sliceSp: Optional. decimation factor for AV.
 % axAtlas: Optional. axes to plot to.
 % 
@@ -15,13 +14,13 @@ function plot_areas( sphynxId, av, st, sliceSp, axAtlas )
 % Axes with volume plot of the desired structure.
 
 
-% Set up slice spacing
+% Set up slice spacing.
 if nargin < 4 || isempty( sliceSp )
     sliceSp = 5;
     
 end
 
-% Set up the atlas axes
+% Set up the atlas axes.
 if nargin < 5
     axAtlas = axes( 'ZDir', 'reverse' );
 
@@ -29,35 +28,34 @@ end
 rotate3d( axAtlas, 'on' )
 axis( axAtlas, 'vis3d', 'equal', 'off' );
 
-% Get guidata
+% Get guidata.
 bregma = allenCCFbregma;
 apCoords = -( ( 1 : size( av, 1 ) ) - bregma( 1 ) ) / 100;
 dvCoords = ( ( ( 1 : size( av, 2 ) ) - bregma( 2 ) ) / 100 ) * 0.85;
 mlCoords = -( ( 1 : size( av, 3 ) ) - bregma( 3 ) ) / 100;
 
-% Get all areas within and below the selected hierarchy level
-structId = st.structure_id_path{ sphynxId };
+% Get all areas within and below the selected hierarchy level.
+structId = areaCCF.structure_id_path;
 ccfIdx = find(...
     cellfun( @( x ) contains( x, structId ),...
-    st.structure_id_path ) );
+    areaCCF.structure_id_path ) );
 
-% plot the structure
-structColor = hex2dec(...
-    reshape( st.color_hex_triplet{ sphynxId }, 2, [ ] )' ) ./ 255;
+% Generate plotting grid.
 [ mlGrid, apGrid, dvGrid ] = ndgrid(...
     mlCoords( 1 : sliceSp : end ),...
     apCoords( 1 : sliceSp : end ), ...
     dvCoords( 1 : sliceSp : end ) );
 
-% decimate AV
+% Decimate AV.
 decAv = av( 1 : sliceSp : end, 1 : sliceSp : end, 1 : sliceSp : end );
 shuffAv = permute( ismember( decAv, ccfIdx ), [ 3, 1, 2 ] );
 struct3d = isosurface( mlGrid, apGrid, dvGrid, shuffAv, 0 );
 
+% Plot the brain region.
 structAlpha = 0.2;
 patch( axAtlas, ...
     'Vertices', struct3d.vertices, ...
     'Faces', struct3d.faces, ...
-    'FaceColor', structColor',...
+    'FaceColor', areaCCF.color_rgb,...
     'EdgeColor', 'none',...
     'FaceAlpha', structAlpha);
