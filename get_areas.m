@@ -1,4 +1,4 @@
-function ccf_area = get_areas( probe_fit, av, st )
+function areaCCF = get_areas( probe_fit, av, st )
 
 % find row with max depth
 [ ~, maxIdx] = max( probe_fit( :, 3 ) );
@@ -18,4 +18,12 @@ ccf_points_idx = sub2ind(...
 ccf_points_av = av( ccf_points_idx );
 
 % Get areas from the structure tree (ST) at given AV values
-ccf_area = st( ccf_points_av, : ).safe_name{ 1 };
+areaCCF.name = st( ccf_points_av, : ).safe_name{ 1 };
+areaCCF.acronym = st( ccf_points_av, : ).acronym{ 1 };
+areaCCF.sphinx_id = st( ccf_points_av, : ).sphinx_id( 1 );
+areaCCF.parent_id = st( ccf_points_av, : ).parent_structure_id( 1 );
+rgb = hex2rgb( st( ccf_points_av, : ).color_hex_triplet{ 1 } );
+areaCCF.color_rgb = rgb ./ 255;
+
+
+    
