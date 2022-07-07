@@ -2,8 +2,6 @@ function areaCCF = get_areas( probe_fit, av, st )
 
 % find row with max depth
 [ ~, maxIdx] = max( probe_fit( :, 3 ) );
-
-
 bottomPts = probe_fit( maxIdx, : );
 ccf_points_cat = round( bottomPts );
 
