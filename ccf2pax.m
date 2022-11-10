@@ -16,4 +16,7 @@ x = ( points( :, 1 ) - bregma( 1 ) ) / 100; % AP
 z = ( ( points( :, 2 ) - bregma( 2 ) ) / 100 ) * 0.945; % DV
 y = ( points( :, 3 ) - bregma( 3 ) ) / 100; % ML
 
-trPoints = [ -y z -x ];
+trPoints = [ y z -x ];
+
+warning( [ 'Converted to Paxinos coordinates where negative ML values',...
+    ' are in left hemisphere.' ] )
