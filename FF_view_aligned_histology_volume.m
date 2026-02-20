@@ -95,7 +95,7 @@ h.Enable = 'on';
 % Draw all aligned slices
 histology_surf = gobjects(length(gui_data.slice_im),1);
 
-if nargin < 6
+if nargin < 4
     thr = 100;
     
 end
